@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "req2stdout.fullname" . }}
+  labels:
+    {{- include "req2stdout.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "req2stdout.fullname" . }}
+  minReplicas: 1
+  maxReplicas: 1

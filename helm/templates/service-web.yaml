@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "req2stdout.fullname" . }}
+  labels:
+    {{- include "req2stdout.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.web.type }}
+  ports:
+    - port: {{ .Values.service.web.port }}
+      targetPort: web
+      protocol: TCP
+      name: web
+  selector:
+    {{- include "req2stdout.selectorLabels" . | nindent 4 }}

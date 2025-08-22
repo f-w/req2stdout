@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "req2stdout.fullname" . }}
+  labels:
+    {{- include "req2stdout.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "req2stdout.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "req2stdout.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          env:
+            - name: NODE_ENV
+              value: production
+            {{- with .Values.extraEnvs }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: web
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /_probe
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /_probe
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
